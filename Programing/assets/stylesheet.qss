@@ -1,0 +1,124 @@
+#Form {
+background-color: rgb(255, 255, 255);
+border-radius: 3px;
+}
+
+
+QPushButton:hover {
+color: white;
+background-color: rgb(255, 85, 127);
+border-radius: 6px;
+font-size:16px;
+}
+
+
+QLineEdit{
+position: absolute;
+width: 413px;
+height: 35px;
+left: 30px;
+top: 121px;
+
+background: #FFFFFF;
+border: 1px solid #E3E3E3;
+border-radius: 3px;
+}
+
+
+#frame_main {
+background-color: rgb(255, 255, 255);
+ border: 1px solid pink;
+/* Rectangle 2.21 */
+
+position: absolute;
+width: 608px;
+height: 318px;
+left: 0px;
+top: 0px;
+border-radius: 3px;
+}
+
+
+#frame_btn_choose QPushButton:!hover{
+position: absolute;
+width: 113px;
+height: 35px;
+left: 456px;
+top: 121px;
+
+background: #EAEAEA;
+border: 1px solid #E3E3E3;
+border-radius: 6px;
+}
+
+
+QPushButton:pressed{
+background:#EAEAEA;
+color: black;
+font-size:16px;
+}
+
+QPushButton{
+font-size:16px;
+}
+
+
+#frame_btn_gui_tn QPushButton:!hover{
+background-color: rgb(170, 0, 255);
+color: rgb(255, 255, 255);
+position: absolute;
+width: 114px;
+height: 40px;
+left: 456px;
+top: 249px;
+border-radius: 6px
+}
+
+
+#frame_lineEdit_file QLabel{
+position: absolute;
+width: 168px;
+height: 17px;
+left: 30px;
+top: 100px;
+
+font-family: Roboto;
+font-style: normal;
+font-weight: normal;
+font-size: 18px;
+line-height: 15px;
+
+color: #585858;
+}
+
+
+
+#image_AC_solution
+{
+/* logo */
+
+width: 80px;
+height: 57px;
+margin: 0 0 0 0;
+padding: 0 0 0 0;
+top: 3px;
+}
+
+#label_cskh
+{
+/* ZALO BOTCHAT */
+
+position: absolute;
+width: 168px;
+height: 28px;
+margin: 0 0 0 0;
+top: 60px;
+
+font-family: Roboto;
+font-style: normal;
+font-size: 35px;
+line-height: 23px;
+text-align: center;
+
+color: #DD539B;
+}

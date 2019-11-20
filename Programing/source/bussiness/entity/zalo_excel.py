@@ -1,5 +1,5 @@
 import openpyxl
-from Programing.source.bussiness.controller.zalo_utility import *
+from Programing.source.bussiness.controller.zalo_controller import *
 from PyQt5 import QtWidgets
 
 
@@ -60,8 +60,8 @@ class Excel:
         try:
             os.startfile(self.status_summary)
         except FileNotFoundError:
-            Utility.show_message("THÔNG BÁO", "<center> Hiện chưa có file tổng hợp tin nhắn </center>",
-                                 Utility.get_resource_path("ac_solution.ico"))
+            Zalo.show_message("THÔNG BÁO", "<center> Hiện chưa có file tổng hợp tin nhắn </center>",
+                              Zalo.get_resource_path("ac_solution.ico"))
         except Exception:
             pass
 

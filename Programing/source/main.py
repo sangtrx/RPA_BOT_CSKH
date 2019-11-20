@@ -3,7 +3,7 @@ import sys
 from PyQt5 import QtWidgets, QtGui
 
 from Programing.source.bussiness.view.zalo_gui import Ui_Form, remove_qt_temporary_files
-from Programing.source.bussiness.controller.zalo_utility import Path
+from Programing.source.bussiness.controller.zalo_utils import Path
 from Programing.source.license.license_checker import LicenseChecker, LicenseCode
 
 if __name__ == '__main__':

@@ -194,6 +194,22 @@ class Utility:
 
             return status
 
+    def wait_stale_elem(self, elem_id: str):
+        ignored_exceptions = (NoSuchElementException, StaleElementReferenceException, ElementNotInteractableException,)
+        elem = WebDriverWait(self.driver, timeout=5, ignored_exceptions=ignored_exceptions) \
+            .until(expected_conditions.presence_of_element_located((By.ID, elem_id)))
+        return elem
+
+
+class ZaloUtility:
+
+    @staticmethod
+    def dict_get_multikeys(dict_, *keys, default=None):
+        for key in keys:
+            if key in dict_:
+                return dict_[key]
+        return default
+
     @staticmethod
     def show_message(title, info, icon_path='ac_solution.ico', type_=QMessageBox.Information):
         """ show message """
@@ -207,23 +223,10 @@ class Utility:
         message_box.activateWindow()
         message_box.exec_()
 
-    def wait_stale_elem(self, elem_id: str):
-        ignored_exceptions = (NoSuchElementException, StaleElementReferenceException, ElementNotInteractableException,)
-        elem = WebDriverWait(self.driver, timeout=5, ignored_exceptions=ignored_exceptions) \
-            .until(expected_conditions.presence_of_element_located((By.ID, elem_id)))
-        return elem
-
-
-def dict_get_multikeys(dict_, *keys, default=None):
-    for key in keys:
-        if key in dict_:
-            return dict_[key]
-    return default
-
 
 class Path:
     BOT_ROOT_FOLDER = os.path.join(
-        dict_get_multikeys(os.environ, "LOCALAPPDATA", "USERPROFILE", "TEMP", "TMP", os.getcwd()), "AC_SOLUTION",
+        ZaloUtility.dict_get_multikeys(os.environ, "LOCALAPPDATA", "USERPROFILE", "TEMP", "TMP", os.getcwd()), "AC_SOLUTION",
     )
     CHROME_DRIVER_PATH = os.path.join(BOT_ROOT_FOLDER, "ChromeDriver")
     JS_DROP_FILES = "var c=arguments,b=c[0],k=c[1];c=c[2];" \
@@ -261,3 +264,6 @@ if __name__ == '__main__':
     dropzone.drop_files(r"D:\Pictures\HUST\HUST_4.jpg")
     utility.add_caption()
     time.sleep(10000)
+
+    driver = webdriver.Chrome()
+    driver.find_element_by_id("").pa

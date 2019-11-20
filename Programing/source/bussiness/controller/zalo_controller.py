@@ -1,4 +1,3 @@
-import sys
 import time
 import os
 import glob
@@ -9,14 +8,14 @@ from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException, WebDriverException, NoSuchWindowException
 from selenium.webdriver.common.keys import Keys
 from PyQt5.QtWidgets import QMessageBox
-from PyQt5 import QtGui, QtCore
-from PyQt5.QtWidgets import QApplication
 import pyperclip
+from selenium.webdriver.remote.webelement import WebElement
 
+from Programing.source.bussiness.controller.zalo_utils import Path, ZaloUtility
 from Programing.source.utility.chromedriver import ChromeDriver
 
 
-class Utility:
+class Zalo:
 
     ZALO_LOGIN = "https://chat.zalo.me/"
     ZALO_NOT_LOGIN = "https://id.zalo.me/account/login"
@@ -30,7 +29,30 @@ class Utility:
     ZALO_CLASS_CUSTOMER_LAST_MESSAGE = ["card  pin-react  last-msg card--text",
                                         "card  pin-react  last-msg card--picture",
                                         "card  pin-react  last-msg card--sticker"]
-    AC_SOLUTION_FOLDER = os.path.join(os.environ.get("USERPROFILE"), r"AppData\Local\AC_SOLUTION_3")
+
+    JS_DROP_FILES = "var c=arguments,b=c[0],k=c[1];c=c[2];" \
+                    "for(var d=b.ownerDocument||document,l=0;;){" \
+                    "var e=b.getBoundingClientRect()," \
+                    "g=e.left+(k||e.width/2)," \
+                    "h=e.top+(c||e.height/2)," \
+                    "f=d.elementFromPoint(g,h);" \
+                    "if(f&&b.contains(f))break;" \
+                    "if(1<++l)throw b=Error('Element not interactable')," \
+                    "b.code=15,b;b.scrollIntoView({behavior:'instant'," \
+                    "block:'center',inline:'center'})}var a=d.createElement('INPUT');a.setAttribute('type','file');" \
+                    "a.setAttribute('multiple','');a.setAttribute('style','position:fixed;z-index:2147483647;left:0;top:0;');" \
+                    "a.onchange=function(b){a.parentElement.removeChild(a);" \
+                    "b.stopPropagation();" \
+                    "var c={constructor:DataTransfer,effectAllowed:'all',dropEffect:'none',types:['Files']," \
+                    "files:a.files,setData:function(){},getData:function(){},clearData:function(){},setDragImage:function(){}};" \
+                    "window.DataTransferItemList&&(c.items=Object.setPrototypeOf(Array.prototype.map.call(a.files," \
+                    "function(a){return{constructor:DataTransferItem,kind:'file',type:a.type,getAsFile:" \
+                    "function(){return a},getAsString:function(b){var c=new FileReader;c.onload=function(a){b(a.target.result)};" \
+                    "c.readAsText(a)}}}),{constructor:DataTransferItemList,add:function(){},clear:function(){},remove:function(){}}));" \
+                    "['dragenter','dragover','drop'].forEach(function(a){var b=d.createEvent('DragEvent');" \
+                    "b.initMouseEvent(a,!0,!0,d.defaultView,0,0,0,g,h,!1,!1,!1,!1,0,null);Object.setPrototypeOf(b,null);" \
+                    "b.dataTransfer=c;Object.setPrototypeOf(b,DragEvent.prototype);f.dispatchEvent(b)})};" \
+                    "d.documentElement.appendChild(a);a.getBoundingClientRect();return a;"
 
     def __init__(self):
         self.contact_found = False
@@ -39,9 +61,7 @@ class Utility:
         self.step_wait = 1
         self.phones = []
         self.found_phones = []
-        self.saved_path = os.path.join(Utility.AC_SOLUTION_FOLDER, "saved_paths.txt")
-        self.icon_path = Utility.get_resource_path("ac_solution.ico")
-        self.img_path = Utility.get_resource_path("ac_solution.jpg")
+        self.saved_path = ZaloUtility.get_resource_path("saved_path.txt")
 
     def __del__(self):
         try:
@@ -62,32 +82,21 @@ class Utility:
         driver = webdriver.Chrome(executable_path=chome_driver_path, options=chrome_options)
         return driver
 
-    @staticmethod
-    def get_resource_path(relative_path):
-        """ Get absolute path to resource, works for dev and for PyInstaller """
-        try:
-            # PyInstaller creates a temp folder and stores path in _MEIPASS
-            base_path = sys._MEIPASS
-        except Exception:
-            base_path = r"D:\Documents\UNIVERSITY\PROJECT\Python_RPA\bot_zalo_send_message_to_friends\Programing\assets"
-        return os.path.join(base_path, relative_path)
-
     def login(self):
         """ login zalo """
         try:
-            if self.driver.current_url.split("?")[0] == Utility.ZALO_NOT_LOGIN:
+            if self.driver.current_url.split("?")[0] == Zalo.ZALO_NOT_LOGIN:
                 pass
         except (AttributeError, WebDriverException):
             self.driver = self.create_driver(ChromeDriver(Path.CHROME_DRIVER_PATH).get_chromedriver())
-            self.driver.get(Utility.ZALO_LOGIN)
+            self.driver.get(Zalo.ZALO_LOGIN)
             time.sleep(1)
 
         try:
-            if self.driver.current_url != Utility.ZALO_LOGIN:
-                Utility.show_message('THÔNG BÁO', '<center> Bạn chưa đăng nhập zalo !!! </center> \n '
-                                     '<center> Vui lòng đăng nhập để tiếp tục </center>',
-                                     self.icon_path, type_=QMessageBox.Warning)
-                while self.driver.current_url != Utility.ZALO_LOGIN:
+            if self.driver.current_url != Zalo.ZALO_LOGIN:
+                ZaloUtility.show_message('THÔNG BÁO', '<center> Bạn chưa đăng nhập zalo !!! </center> \n '
+                                         '<center> Vui lòng đăng nhập để tiếp tục </center>', type_=QMessageBox.Warning)
+                while self.driver.current_url != Zalo.ZALO_LOGIN:
                     pass
                 self.login_ok = True
             else:
@@ -160,11 +169,11 @@ class Utility:
 
             # last message of guest or me can be [text, image, sticker]
             my_status, guest_status = [], []
-            for x in Utility.ZALO_CLASS_MY_LAST_MESSAGE:
+            for x in Zalo.ZALO_CLASS_MY_LAST_MESSAGE:
                 if self.driver.execute_script(r" return document.getElementsByClassName(arguments[0])", x):
                     my_status = self.driver.execute_script(r'return document.getElementsByClassName(arguments[0])[0].innerText.split("\n")', x)
                     break
-            for x in Utility.ZALO_CLASS_CUSTOMER_LAST_MESSAGE:
+            for x in Zalo.ZALO_CLASS_CUSTOMER_LAST_MESSAGE:
                 if self.driver.execute_script(r"return document.getElementsByClassName(arguments[0])", x):
                     guest_status = self.driver.execute_script(r'return document.getElementsByClassName(arguments[0])[0].innerText.split("\n")', x)
                     break
@@ -175,9 +184,9 @@ class Utility:
                 except IndexError:
                     status.extend([my_status[1], my_status[0], None])  # image or sticker
             else:
-                if guest_status[0].upper() == Utility.ZALO_BLOCK_STRANGERS:
+                if guest_status[0].upper() == Zalo.ZALO_BLOCK_STRANGERS:
                     status.extend([None, None, "Chặn tin nhắn từ người lạ"])
-                elif guest_status[0].upper() == Utility.ZALO_BLOCK_ME:
+                elif guest_status[0].upper() == Zalo.ZALO_BLOCK_ME:
                     status.extend([None, None, "Chặn tôi"])
                 else:
                     status.extend(["Đã xem", None, None])
@@ -204,42 +213,17 @@ class Utility:
             return None
 
     @staticmethod
-    def show_message(title, info, icon_path='ac_solution.ico', type_=QMessageBox.Information):
-        """ show message """
-        QApplication.instance()
-        message_box = QMessageBox()
-        message_box.setText(info)
-        message_box.setWindowTitle(title)
-        message_box.setWindowIcon(QtGui.QIcon(icon_path))
-        message_box.setIcon(type_)
-        message_box.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-        message_box.activateWindow()
-        message_box.exec_()
+    def drop_files(element: WebElement, files, offsetX=0, offsetY=0):
+        driver = element.parent
+        isLocal = not driver._is_remote or '127.0.0.1' in driver.command_executor._url
+        paths = []
 
-    def get_saved_paths(self):
-        """ get file path that user used last time """
-        if not os.path.isfile(self.saved_path) or os.stat(self.saved_path).st_size == 0:
-            return ''
-        with open(self.saved_path, encoding='utf-8', mode='r') as f:
-            path = f.read()
-        return path
+        # ensure files are present, and upload to the remote server if session is remote
+        for file in (files if isinstance(files, list) else [files]):
+            if not os.path.isfile(file):
+                raise FileNotFoundError(file)
+            paths.append(file if isLocal else element._upload(file))
 
-    def save_paths(self, new_path):
-        """ save the path that has been used """
-        with open(self.saved_path, encoding='utf-8', mode='w') as f:
-            f.write(new_path)
-
-
-def dict_get_multikeys(dict_, *keys, default=None):
-    for key in keys:
-        if key in dict_:
-            return dict_[key]
-    return default
-
-
-class Path:
-    BOT_ROOT_FOLDER = os.path.join(
-        dict_get_multikeys(os.environ, "LOCALAPPDATA", "USERPROFILE", "TEMP", "TMP", os.getcwd()), "AC_SOLUTION",
-    )
-    CHROME_DRIVER_PATH = os.path.join(BOT_ROOT_FOLDER, "ChromeDriver")
-    ICON_PATH = Utility.get_resource_path("icon_solution.ico")
+        value = '\n'.join(paths)
+        elm_input = driver.execute_script(Zalo.JS_DROP_FILES, element, offsetX, offsetY)
+        elm_input._execute('sendKeysToElement', {'value': [value], 'text': value})

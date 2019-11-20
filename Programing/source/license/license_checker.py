@@ -7,8 +7,9 @@ import requests
 from PyQt5.QtWidgets import QMessageBox
 from requests.exceptions import ConnectionError, Timeout, HTTPError
 
+from Programing.source.bussiness.controller.zalo_utils import ZaloUtility
 from Programing.source.license.license_utility import read_uuid, read_json, str_2_date, write_file, get_check_path
-from Programing.source.bussiness.controller.zalo_utility import Utility
+from Programing.source.bussiness.controller.zalo_controller import Zalo
 
 
 SECONDS_IN_DAY = 24 * 60 * 60
@@ -34,7 +35,7 @@ class LicenseChecker:
         self.bot_id = bot_id
 
         # icon path
-        self.icon_path = Utility.get_resource_path("ac_solution.ico")
+        self.icon_path = ZaloUtility.get_resource_path("ac_solution.ico")
         # get uuid if it's not fed
         if uuid is None:
             self.uuid_address = read_uuid()
@@ -65,7 +66,7 @@ class LicenseChecker:
                 else:
                     self.license_info = resp.json()
             except (ConnectionError, HTTPError, Timeout):
-                Utility.show_message("LỖI", "Vui lòng kiểm tra lại kết nối mạng của bạn", icon_path=self.icon_path, type_=QMessageBox.Critical)
+                ZaloUtility.show_message("LỖI", "Vui lòng kiểm tra lại kết nối mạng của bạn", type_=QMessageBox.Critical)
                 os._exit(0)
             except Exception:
                 self.license_info = None
@@ -124,11 +125,11 @@ class LicenseChecker:
             message = "[AC_SOLUTION THÔNG BÁO]<br>" + self.license_info['notification']
 
         if status != LicenseCode.OK:
-            Utility.show_message("LỖI", message, icon_path=self.icon_path, type_=QMessageBox.Critical)
+            ZaloUtility.show_message("LỖI", message, type_=QMessageBox.Critical)
             return
         else:
             if self.license_info['notification'] != '':
-                Utility.show_message("AC Solution", message, icon_path=self.icon_path, type_=QMessageBox.Information)
+                ZaloUtility.show_message("AC Solution", message, type_=QMessageBox.Information)
             else:
                 pass
 

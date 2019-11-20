@@ -5,25 +5,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 from selenium.common.exceptions import NoSuchElementException, NoSuchWindowException, WebDriverException
 
+from Programing.source.bussiness.controller.zalo_utils import ZaloUtility, Path
 from Programing.source.bussiness.entity.zalo_excel import Excel
-from Programing.source.bussiness.controller.zalo_utility import Utility
-
-try:
-    _fromUtf8 = QtCore.QString.fromUtf8
-except AttributeError:
-    def _fromUtf8(s):
-        return s
-
-try:
-    _encoding = QtGui.QApplication.UnicodeUTF8
-    def _translate(context, text, disambig):
-        return QtGui.QApplication.translate(context, text, disambig, _encoding)
-except AttributeError:
-    def _translate(context, text, disambig):
-        return QtGui.QApplication.translate(context, text, disambig)
-
-
-CHECKER_ENDPOINT = 'http://quatangbaohiem.com/api/bot/authorize?mac='
+from Programing.source.bussiness.controller.zalo_controller import Zalo
 
 
 def remove_qt_temporary_files():
@@ -31,20 +15,16 @@ def remove_qt_temporary_files():
         os.remove('qt.conf')
 
 
-icon_path = Utility.get_resource_path("ac_solution.ico")
-image_path = Utility.get_resource_path("ac_solution.jpg")
-
-
 class Ui_Form:
 
     def __init__(self, Form):
         self.excel = Excel()
-        self.zalo = Utility()
+        self.zalo = Zalo()
 
         self.make_folder()
 
-        self.excel.nicks_path = self.zalo.get_saved_paths()
-        self.qss_path = Utility.get_resource_path("stylesheet.qss")
+        self.excel.nicks_path = ZaloUtility.get_saved_paths(file=self.zalo.saved_path)
+        self.qss_path = ZaloUtility.get_resource_path("stylesheet.qss")
 
         self.setupUi(Form)
         if self.lineEdit_nick_zalo.text() == '':
@@ -80,7 +60,7 @@ class Ui_Form:
         self.image_AC_solution = QtWidgets.QLabel(self.frame_label_image)
         self.image_AC_solution.setGeometry(QtCore.QRect(280, 10, 211, 161))
         self.image_AC_solution.setText("")
-        self.image_AC_solution.setPixmap(QtGui.QPixmap(image_path))
+        self.image_AC_solution.setPixmap(QtGui.QPixmap(Path.IMG_PATH))
         self.image_AC_solution.setScaledContents(True)
         self.image_AC_solution.setAlignment(QtCore.Qt.AlignCenter)
         self.image_AC_solution.setObjectName("image_AC_solution")
@@ -148,7 +128,7 @@ class Ui_Form:
         self.lineEdit_nick_zalo.setText("")
         self.lineEdit_nick_zalo.setObjectName("lineEdit_nick_zalo")
         self.lineEdit_nick_zalo.setReadOnly(True)
-        self.lineEdit_nick_zalo.setText(self.zalo.get_saved_paths())
+        self.lineEdit_nick_zalo.setText(ZaloUtility.get_saved_paths(self.zalo.saved_path))
 
         self.label_nick_zalo = QtWidgets.QLabel(self.frame_lineEdit_file)
         self.label_nick_zalo.setGeometry(QtCore.QRect(20, 20, 321, 21))
@@ -176,20 +156,19 @@ class Ui_Form:
 
     def choose_zalo_nick(self):
         self.excel.gui_browse_nicks()
-        self.zalo.save_paths(self.excel.nicks_path)
+        ZaloUtility.save_paths(source_file=self.zalo.saved_path, new_path=self.excel.nicks_path)
         self.lineEdit_nick_zalo.setText(self.excel.nicks_path) if self.excel.nicks_path else None
 
     def send_message(self):
         if self.excel.nicks_path == "":
-            Utility.show_message('CẢNH BÁO', '<center> Bạn chưa chọn file excel chứa tin nhắn và ảnh </center>',
-                                 icon_path=icon_path, type_=QMessageBox.Critical)
+            ZaloUtility.show_message('CẢNH BÁO', '<center> Bạn chưa chọn file excel chứa tin nhắn và ảnh </center>', type_=QMessageBox.Critical)
             return
 
         try:
             excel_data = self.excel.read_excel()
         except FileNotFoundError:
-            Utility.show_message("LỖI", f" File <font color='green' size=4><b><i> {self.excel.nicks_path} </i></b></font> Không tồn tại <br>"
-                                 "Bạn vui lòng kiểm tra lại đường dẫn file", icon_path=icon_path, type_=QMessageBox.Critical)
+            ZaloUtility.show_message("LỖI", f" File <font color='green' size=4><b><i> {self.excel.nicks_path} </i></b></font> không tồn tại <br>"
+                                     "Bạn vui lòng kiểm tra lại đường dẫn file", type_=QMessageBox.Critical)
             return
 
         try:
@@ -210,9 +189,9 @@ class Ui_Form:
             else:
                 pass
         self.take_and_log_status()
-        Utility.show_message("THÔNG BÁO", "<center> Đã gửi tin nhắn xong </center> \n"
-                             "<center> Bấm nút <font size=4 color='purple'><b> Xem trạng thái </b></font> để xem trạng thái các tin đã gửi </center> ",
-                             icon_path=icon_path, type_=QMessageBox.Information)
+        ZaloUtility.show_message("THÔNG BÁO", "<center> Đã gửi tin nhắn xong </center> \n"
+                                 "<center> Bấm nút <font size=4 color='purple'><b> Xem trạng thái </b></font> "
+                                 "để xem trạng thái các tin đã gửi </center> ", type_=QMessageBox.Information)
 
     def take_and_log_status(self):
         # get and log status of the found phones
@@ -220,7 +199,7 @@ class Ui_Form:
         for row in excel_datas:
             status_datas = self.zalo.take_message_status(row[0])
             row.extend(status_datas)
-        df = [Utility.STATUS_FIELDS]
+        df = [Zalo.STATUS_FIELDS]
         df.extend(excel_datas)
         self.excel.write_status_to_excel(df)
 
@@ -228,25 +207,25 @@ class Ui_Form:
         """update everyone's status whose statuses are 'ĐÃ GỬI'"""
         # check whether the users choose file or not
         try:
-            book = openpyxl.load_workbook('status_summary.xlsx')
+            book = openpyxl.load_workbook(Path.STATUS_PATH)
         except FileNotFoundError:
-            Utility.show_message("THÔNG BÁO", "Không có file trạng thái để cập nhật",
-                                 icon_path=icon_path, type_=QMessageBox.Information)
+            ZaloUtility.show_message("THÔNG BÁO", "Không có file trạng thái để cập nhật", type_=QMessageBox.Information)
             return
 
         # check whether the users close 'status_summary.xlsx' file or not
         try:
-            book.save('status_summary.xlsx')
+            book.save(Path.STATUS_PATH)
         except PermissionError:
-            Utility.show_message("LỖI", "Bạn vui lòng đóng file <font color='green' size=4><b><i> status_summary.xlsx </i></b></font> <br> và thực hiện lại",
-                                 icon_path=icon_path, type_=QMessageBox.Critical)
+            ZaloUtility.show_message("LỖI", "Bạn vui lòng đóng file <font color='green' size=4><b><i> status_summary.xlsx </i></b></font> "
+                                     "<br> và thực hiện lại",  type_=QMessageBox.Critical)
             return
         sheet = book[book.sheetnames[0]]
         phone_numbers = Excel.take_phones_for_updating()
         if not phone_numbers:
-            Utility.show_message('THÔNG BÁO', '<center> Các tin nhắn đều có trạng thái <font color="blue"><b><i>ĐÃ XEM </font></b></i> </center>\n'
-                                 '<center> Nhấn vào nút <font size=4 color="purple"><b> Xem trạng thái </b></font> để kiểm tra lại </center>'
-                                 , icon_path=icon_path, type_=QMessageBox.Information)
+            ZaloUtility.show_message('THÔNG BÁO', '<center> Các tin nhắn đều có trạng thái'
+                                     ' <font color="blue"><b><i>ĐÃ XEM </font></b></i> </center>\n'
+                                     '<center> Nhấn vào nút <font size=4 color="purple"><b> Xem trạng thái </b></font> để kiểm tra lại </center>',
+                                     type_=QMessageBox.Information)
             return
         try:
             self.zalo.login()
@@ -264,15 +243,15 @@ class Ui_Form:
         for row in sheet.iter_rows(min_col=1, max_col=1, min_row=2, max_row=sheet.max_row):
             if Excel.as_text(row[0].value) in phone_and_status.keys():
                 sheet['E' + Excel.as_text(row[0].row)].value = phone_and_status[Excel.as_text(row[0].value)]
-        book.save('status_summary.xlsx')
-        Utility.show_message("THÔNG BÁO", "<center> Đã cập nhật xong trạng thái </center>\n"
-                             "<center> Bấm nút <font size=4 color='purple'><b> Xem trạng thái </b></font> để xem lại cập nhật </center>"
-                             , icon_path=icon_path, type_=QMessageBox.Information)
+        book.save(Path.STATUS_PATH)
+        ZaloUtility.show_message("THÔNG BÁO", "<center> Đã cập nhật xong trạng thái </center>\n"
+                                 "<center> Bấm nút <font size=4 color='purple'><b> Xem trạng thái </b></font> để xem lại cập nhật </center>"
+                                 , type_=QMessageBox.Information)
 
     def make_folder(self):
         """ create a AC_SOLUTION's folder that saved 'saved_paths.txt' file """
-        if not os.path.exists(Utility.AC_SOLUTION_FOLDER):
-            os.makedirs(Utility.AC_SOLUTION_FOLDER)
+        if not os.path.exists(Zalo.AC_SOLUTION_FOLDER):
+            os.makedirs(Zalo.AC_SOLUTION_FOLDER)
             if not os.path.isfile(self.zalo.saved_path):
                 open(self.zalo.saved_path, mode="w+")
 

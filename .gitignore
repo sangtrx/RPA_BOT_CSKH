@@ -1,0 +1,4 @@
+*.pyc
+*.lock
+*.xlsx
+/Release

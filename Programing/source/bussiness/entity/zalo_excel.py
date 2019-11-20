@@ -1,13 +1,15 @@
+import Programing.source.utility.fix_qt_import_error
 import openpyxl
+from PyQt5 import QtWidgets, QtCore
+
 from Programing.source.bussiness.controller.zalo_controller import *
-from PyQt5 import QtWidgets
 
 
 class Excel:
 
     def __init__(self):
         self.nicks_path = ''
-        self.status_summary = 'status_summary.xlsx'
+        self.status_summary = Path.STATUS_PATH
 
     def read_excel(self):
         """ read data and validate data from excel file """
@@ -35,7 +37,7 @@ class Excel:
         for row in data:
             sheet.append(row)
         Excel.format_sheet(sheet)
-        book.save("status_summary.xlsx")
+        book.save(Path.STATUS_PATH)
 
     @staticmethod
     def format_sheet(sheet):
@@ -60,15 +62,14 @@ class Excel:
         try:
             os.startfile(self.status_summary)
         except FileNotFoundError:
-            Zalo.show_message("THÔNG BÁO", "<center> Hiện chưa có file tổng hợp tin nhắn </center>",
-                              Zalo.get_resource_path("ac_solution.ico"))
+            ZaloUtility.show_message("THÔNG BÁO", "<center> Hiện chưa có file tổng hợp tin nhắn </center>")
         except Exception:
             pass
 
     @staticmethod
     def take_phones_for_updating():
         """ take the phone number of message which have status differ 'ĐÃ XEM' """
-        book = openpyxl.load_workbook('status_summary.xlsx')
+        book = openpyxl.load_workbook(Path.STATUS_PATH)
         sheet = book[book.sheetnames[0]]
         phone_numbers = []
         filter_conditions = ["CHẶN TÔI", "CHẶN TIN NHẮN TỪ NGƯỜI LẠ", "KHÔNG TÌM THẤY NICK ZALO"]

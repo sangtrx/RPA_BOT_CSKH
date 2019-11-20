@@ -1,6 +1,7 @@
 import os
 import sys
 
+import Programing.source.utility.fix_qt_import_error
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import QMessageBox, QApplication
 

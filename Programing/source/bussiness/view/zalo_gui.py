@@ -1,5 +1,6 @@
 import os
 
+import Programing.source.utility.fix_qt_import_error
 import openpyxl
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
@@ -250,8 +251,8 @@ class Ui_Form:
 
     def make_folder(self):
         """ create a AC_SOLUTION's folder that saved 'saved_paths.txt' file """
-        if not os.path.exists(Zalo.AC_SOLUTION_FOLDER):
-            os.makedirs(Zalo.AC_SOLUTION_FOLDER)
+        if not os.path.exists(Path.BOT_ROOT_FOLDER):
+            os.makedirs(Path.BOT_ROOT_FOLDER)
             if not os.path.isfile(self.zalo.saved_path):
                 open(self.zalo.saved_path, mode="w+")
 

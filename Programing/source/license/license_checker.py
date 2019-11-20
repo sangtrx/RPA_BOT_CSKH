@@ -3,13 +3,13 @@ import os
 import time
 import datetime
 
+import Programing.source.utility.fix_qt_import_error
 import requests
 from PyQt5.QtWidgets import QMessageBox
 from requests.exceptions import ConnectionError, Timeout, HTTPError
 
 from Programing.source.bussiness.controller.zalo_utils import ZaloUtility
 from Programing.source.license.license_utility import read_uuid, read_json, str_2_date, write_file, get_check_path
-from Programing.source.bussiness.controller.zalo_controller import Zalo
 
 
 SECONDS_IN_DAY = 24 * 60 * 60

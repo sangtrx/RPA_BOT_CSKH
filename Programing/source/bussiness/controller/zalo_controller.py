@@ -3,6 +3,7 @@ import os
 import glob
 from datetime import datetime
 
+import Programing.source.utility.fix_qt_import_error
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import NoSuchElementException, WebDriverException, NoSuchWindowException
@@ -61,7 +62,7 @@ class Zalo:
         self.step_wait = 1
         self.phones = []
         self.found_phones = []
-        self.saved_path = ZaloUtility.get_resource_path("saved_path.txt")
+        self.saved_path = os.path.join(Path.BOT_ROOT_FOLDER, "saved_paths.txt")
 
     def __del__(self):
         try:
@@ -131,27 +132,30 @@ class Zalo:
         time.sleep(self.step_wait)
 
     def send_data(self, message, image_folder):
-        """ send message and image to users whose nicks have found """
+        """ send message and images to users whose nicks have found
+            Customer can send single image or whole folder contained images"""
         if self.contact_found:
-            if message is not None:
-                message_input = self.driver.find_element_by_id('richInput')
-                pyperclip.copy(message)
-                message_input.send_keys(Keys.CONTROL, 'v')
-                message_input = self.driver.find_element_by_id('richInput')
-                message_input.send_keys(Keys.ENTER)
-                time.sleep(0.5)
             if image_folder is not None:
-                image_upload = self.driver.find_element_by_id('file')
                 if str(image_folder).endswith((".png", ".PNG", ".jpg", ".JPG", ".jpeg", ".JPEG", ".tif", ".TIF")):
-                    image_upload.send_keys(image_folder)
+                    upload_images = image_folder
                 else:
                     try:
                         # loop all images in image_folder
-                        for image in glob.glob(str(image_folder) + "/*"):
-                            image_upload.send_keys(image)
-                            time.sleep(0.5)
+                        upload_images = [image for image in glob.glob(str(image_folder) + "/*")]
                     except Exception:
                         pass
+                message_input = self.driver.find_element_by_id('richInput')
+                self.drop_files(element=message_input, files=upload_images)
+                time.sleep(1)
+
+            # send message as caption of image
+            if message is not None:
+                message_input = self.driver.find_element_by_id("input_line_0")
+                pyperclip.copy(message)
+                message_input.send_keys(Keys.CONTROL, 'v')
+                message_input = self.driver.find_element_by_id('input_line_0')
+                message_input.send_keys(Keys.ENTER)
+                time.sleep(0.5)
 
     def take_message_status(self, phone):
         """ get status of message that has sent
@@ -180,9 +184,9 @@ class Zalo:
             # [Trạng thái gửi tin,  Ngày giờ trạng thái (nếu có), Ghi chú]
             if my_status:
                 try:
-                    status.extend([my_status[2], my_status[1], None])  # text
+                    status.extend([my_status[3], my_status[2], None])  # text
                 except IndexError:
-                    status.extend([my_status[1], my_status[0], None])  # image or sticker
+                    status.extend([my_status[2], my_status[1], None])  # image or sticker
             else:
                 if guest_status[0].upper() == Zalo.ZALO_BLOCK_STRANGERS:
                     status.extend([None, None, "Chặn tin nhắn từ người lạ"])

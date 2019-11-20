@@ -1,10 +1,12 @@
 import sys
 
+import Programing.source.utility.fix_qt_import_error
 from PyQt5 import QtWidgets, QtGui
 
 from Programing.source.bussiness.view.zalo_gui import Ui_Form, remove_qt_temporary_files
 from Programing.source.bussiness.controller.zalo_utils import Path
 from Programing.source.license.license_checker import LicenseChecker, LicenseCode
+
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])

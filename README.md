@@ -41,26 +41,33 @@ Exciting, right ?. So why don't use now.
 
 
 ![Zalo CSKH](./Programing/assets/zalo-cskh-bot.PNG)
-
 <br /> <br />
+
+### 1. Find contact <br/>
 ![Some images while the running process](./Programing/assets/demo/find-contact.PNG)
 <br /> <br />
 
+### 2. Contact found
 ![Some images while the running process](./Programing/assets/demo/found-contact.PNG)
 <br /> <br />
 
+### 3. Enter contact
 ![Some images while the running process](./Programing/assets/demo/enter.PNG)
 <br /> <br />
 
+### 4. Drag image
 ![Some images while the running process](./Programing/assets/demo/drag-image.PNG)
 <br /> <br />
 
+### 5. Add caption
 ![Some images while the running process](./Programing/assets/demo/add-caption.PNG)
 <br /> <br />
 
+### 6. Send combination of caption and image
 ![Some images while the running process](./Programing/assets/demo/result.PNG)
 <br /> <br />
 
+### 7. Get status
 ![Status](./Programing/assets/excel-status.PNG)
 
 

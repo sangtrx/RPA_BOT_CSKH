@@ -40,7 +40,7 @@ Exciting, right ?. So why don't use now.
 ### Some Images about RPA_BOT_CSKH
 
 
-![Zalo CSKH](./Programing/assets/zalo-cskh-bot.png)
+![Zalo CSKH](./Programing/assets/zalo-cskh-bot.PNG)
 
 <br /> <br />
 ![Some images while the running process](./Programing/assets/demo/find-contact.PNG)

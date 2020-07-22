@@ -136,6 +136,7 @@ class Zalo:
             Customer can send single image or whole folder contained images"""
         if self.contact_found:
             if image_folder is not None:
+                upload_images = None
                 if str(image_folder).endswith((".png", ".PNG", ".jpg", ".JPG", ".jpeg", ".JPEG", ".tif", ".TIF")):
                     upload_images = image_folder
                 else:

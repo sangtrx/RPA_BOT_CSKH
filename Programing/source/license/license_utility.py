@@ -54,7 +54,7 @@ def str_2_date(_str):
 
 
 def write_file(filename, content, mode=1, redundancy=""):
-    """write encrypted mac to ac_solution.c2v file with redudancy data"""
+    """write encrypted mac to ac_solution.c2v file with redudancy assets"""
     try:
         if mode == 1:
             content = content.decode('utf-8') + redundancy

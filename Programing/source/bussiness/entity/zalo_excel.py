@@ -12,7 +12,7 @@ class Excel:
         self.status_summary = Path.STATUS_PATH
 
     def read_excel(self):
-        """ read data and validate data from excel file """
+        """ read assets and validate assets from excel file """
         book = openpyxl.load_workbook(self.nicks_path)
         sheet = book[book.sheetnames[0]]
         data = [[c1.value, c2.value, c3.value] for c1, c2, c3 in sheet.iter_rows(min_row=2, min_col=1, max_row=sheet.max_row, max_col=3)
